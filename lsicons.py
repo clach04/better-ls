@@ -11,6 +11,30 @@ except ModuleNotFoundError:
     def getpwuid(x):
         raise KeyError
 from optparse import OptionParser
+import sys
+
+
+try:
+    import colorama
+except ImportError:
+    colorama = None
+
+is_win = sys.platform.startswith('win')
+guess_color_available = colorama or (not is_win) or (is_win and ('TERM' in os.environ or 'TERM_PROGRAM' in os.environ))
+
+
+if is_win and colorama:
+    # TODO only do below for Windows? looks like it may be a NOOP so may not need a windows check
+    try:
+        colorama.just_fix_windows_console()
+    except AttributeError:
+        # older version, for example '0.4.4'
+        colorama.init()
+
+use_color = guess_color_available
+if os.environ.get('NO_COLOR') or not sys.stdout.isatty():  # NO_COLOR https://no-color.org/
+    # skips processing for doing highlighting
+    use_color = False
 
 
 # File extension descriptions.
