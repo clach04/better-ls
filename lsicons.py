@@ -5,7 +5,11 @@ import os
 import subprocess
 import glob
 import stat
-from pwd import getpwuid
+try:
+    from pwd import getpwuid
+except ModuleNotFoundError:
+    def getpwuid(x):
+        raise KeyError
 from optparse import OptionParser
 
 
