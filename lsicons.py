@@ -36,6 +36,12 @@ if os.environ.get('NO_COLOR') or not sys.stdout.isatty():  # NO_COLOR https://no
     # skips processing for doing highlighting
     use_color = False
 
+if use_color:
+    COLOR_SET = "\x1b[38;5;%sm"  # NOTE parameter!
+    COLOR_RESET = "\x1b[00m"
+else:
+    COLOR_SET = ""
+    COLOR_RESET = ""
 
 # File extension descriptions.
 # Format: "EXTENSION": [u"ICON","COLOR CODE"]
@@ -134,7 +140,9 @@ EXTENSIONS = {":FILE":	[u"", "216"],
 
 # Formats colors. Makes printing a bit easier.
 def colorfmt(c):
-    return "\x1b[38;5;%sm" % c
+    if COLOR_SET:
+        return COLOR_SET % c
+    return COLOR_SET
 
 def permissions_to_unix_name(st):
     is_dir = 'd' if stat.S_ISDIR(st.st_mode) else '-'
@@ -205,7 +213,7 @@ if __name__ == '__main__':
         formattedfiles.append((file_line, file_color))
     fstr = ''
     for f in formattedfiles:
-        fstr += f[0]+"\n"
+        fstr += f[0]+COLOR_RESET+"\n"
 
     if not options.is_list:
         # Temporary file because I can't pipe the string to column yet -
