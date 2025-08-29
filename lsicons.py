@@ -183,7 +183,7 @@ if __name__ == '__main__':
     parser.add_option("-d", "--dir", dest="dir", default='')
     (options, args) = parser.parse_args()
 
-    files = glob.glob(options.dir + '.*') + glob.glob(options.dir + '*')
+    files = glob.glob(os.path.join(options.dir, '.*')) + glob.glob(os.path.join(options.dir, '*'))
     formattedfiles = []
 
     for f in sorted(files, key=lambda v: v.upper(),):
