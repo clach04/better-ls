@@ -19,6 +19,11 @@ try:
 except ImportError:
     colorama = None
 
+is_py3 = sys.version_info >= (3,)
+
+if is_py3:
+    xrange = range
+
 is_win = sys.platform.startswith('win')
 guess_color_available = colorama or (not is_win) or (is_win and ('TERM' in os.environ or 'TERM_PROGRAM' in os.environ))
 
@@ -173,7 +178,21 @@ def get_file_size(file_stat):
     return "%d GB" % size
 
 def get_terminal_column_width():
-    _, columns = os.popen('stty size', 'r').read().split()
+    if is_py3:
+        return os.get_terminal_size().columns
+
+    # probably Python 2
+    if is_win:
+        pass
+        mode_binary = os.path.join(os.environ["windir"], "System32", "mode.com")
+        findstr_binary = os.path.join(os.environ["windir"], "System32", "findstr.exe")
+        mode_output  = os.popen("%s CON:|%s Columns:" % (mode_binary, findstr_binary), "r").read().split("\n")  # TODO review, this may still be using shell - could perform all string processing in Python
+        columns = int(mode_output[0].split(":")[1])
+        print('%r' % mode_output)
+        return columns
+
+    #_, columns = os.popen('stty size', 'r').read().split()
+    columns = int(os.popen('tput cols', 'r').read())
     return columns
 
 
