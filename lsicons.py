@@ -216,21 +216,17 @@ if __name__ == '__main__':
         fstr += f[0]+COLOR_RESET+"\n"
 
     if not options.is_list:
-        # Temporary file because I can't pipe the string to column yet -
-        # limitation (hdd speed)
-        tmpfile = open("lsfile", "w")
-        try:
-            # Python 3
-            tmpfile.write(fstr)
-        except UnicodeEncodeError:
-            # Python 2
-            tmpfile.write(str(fstr.encode('utf-8')))
-        tmpfile.close()
-        # Yes, I know I'm using shell=True. One reason why you SHOULD NOT give
-        # this program full permissions.
-        output = subprocess.check_output(
-            "cat lsfile | column -c $(tput cols); rm -rf lsfile",
-            shell=True).decode('utf-8')
+        colored_files = fstr.split("\n")  # FIXME this is wasteful and inefficient - clach04 is responsible for this monstrosity on this specific line
+        _, columns = os.popen('stty size', 'r').read().split()
+        max_length = max([len(c) for c in colored_files]) + 5
+        max_cols = (int(columns) / max_length)
+        file_format = u"{: <%d}" % max_length
+
+        output = u""
+        for i in xrange(len(colored_files)):
+            output += file_format.format(colored_files[i])
+            if (i+1) % max_cols == 0:
+                output += "\n"
     else:
         output = fstr
 
