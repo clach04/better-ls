@@ -172,6 +172,11 @@ def get_file_size(file_stat):
 
     return "%d GB" % size
 
+def get_terminal_column_width():
+    _, columns = os.popen('stty size', 'r').read().split()
+    return columns
+
+
 if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option(
@@ -217,7 +222,7 @@ if __name__ == '__main__':
 
     if not options.is_list:
         colored_files = fstr.split("\n")  # FIXME this is wasteful and inefficient - clach04 is responsible for this monstrosity on this specific line
-        _, columns = os.popen('stty size', 'r').read().split()
+        columns = get_terminal_column_width()
         max_length = max([len(c) for c in colored_files]) + 5
         max_cols = (int(columns) / max_length)
         file_format = u"{: <%d}" % max_length
